@@ -115,7 +115,7 @@ proxy = None
 async def sendHelloMessage(client, peerChannel):
     entity = await client.get_entity(peerChannel)
     print("Telegram Download Daemon NG "+TDD_VERSION+" using Telethon "+__version__)
-    await client.send_message(entity, "Telegram Download Daemon NG"+TDD_VERSION+" using Telethon "+__version__)
+    await client.send_message(entity, "Telegram Download Daemon NG "+TDD_VERSION+" using Telethon "+__version__)
     await client.send_message(entity, "Hi! Ready for your files!")
  
 
