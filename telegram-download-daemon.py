@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-# Telegram Download Daemon
-# Author: Alfonso E.M. <alfonso@el-magnifico.org>
+# Telegram Download Daemon NG
+# Author: Luis Zurro <luiszurrodecos@gmail.com>
+# Based on original work from: Alfonso E.M. <alfonso@el-magnifico.org> [https://github.com/alfem/telegram-download-daemon]
 # You need to install telethon (and cryptg to speed up downloads)
 
 from os import getenv, path
@@ -30,7 +31,7 @@ import argparse
 import asyncio
 
 
-TDD_VERSION="1.13"
+TDD_VERSION="0.0.1"
 
 TELEGRAM_DAEMON_API_ID = getenv("TELEGRAM_DAEMON_API_ID")
 TELEGRAM_DAEMON_API_HASH = getenv("TELEGRAM_DAEMON_API_HASH")
@@ -113,8 +114,8 @@ proxy = None
 
 async def sendHelloMessage(client, peerChannel):
     entity = await client.get_entity(peerChannel)
-    print("Telegram Download Daemon "+TDD_VERSION+" using Telethon "+__version__)
-    await client.send_message(entity, "Telegram Download Daemon "+TDD_VERSION+" using Telethon "+__version__)
+    print("Telegram Download Daemon NG "+TDD_VERSION+" using Telethon "+__version__)
+    await client.send_message(entity, "Telegram Download Daemon NG"+TDD_VERSION+" using Telethon "+__version__)
     await client.send_message(entity, "Hi! Ready for your files!")
  
 

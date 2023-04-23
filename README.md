@@ -1,6 +1,8 @@
-# telegram-download-daemon
+# telegram-download-daemon-ng
 
 A Telegram Daemon (not a bot) for file downloading automation [for channels of which you have admin privileges](https://github.com/alfem/telegram-download-daemon/issues/48).
+
+Based on the original work of [@alfem](https://github.com/alfem): https://github.com/alfem/telegram-download-daemon
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E03K0RP)
 
@@ -54,20 +56,5 @@ You can also 'talk' to this daemon using your Telegram client:
 
 # Docker
 
-`docker pull alfem/telegram-download-daemon`
+TODO
 
-When we use the [`TelegramClient`](https://docs.telethon.dev/en/latest/quick-references/client-reference.html#telegramclient) method, it requires us to interact with the `Console` to give it our phone number and confirm with a security code.
-
-To do this, when using *Docker*, you need to **interactively** run the container for the first time.
-
-When you use `docker-compose`, the `.session` file, where the login is stored is kept in *Volume* outside the container. Therefore, when using docker-compose you are required to:
-
-```bash
-$ docker-compose run --rm telegram-download-daemon
-# Interact with the console to authenticate yourself.
-# See the message "Signed in successfully as {youe name}"
-# Close the container
-$ docker-compose up -d
-```
-
-See the `sessions` volume in the [docker-compose.yml](docker-compose.yml) file.
