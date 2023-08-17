@@ -37,7 +37,7 @@ dependencies = [
   "pycparser==2.21",
   "rsa==4.9",
   "Telethon>=1.28.2",
-  "humanize==4.7.0",
+  "humanize==4.8.0",
 
 ]
 
