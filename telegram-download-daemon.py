@@ -188,7 +188,7 @@ with TelegramClient(getSession(), api_id, api_hash,
         
         try:
 
-            if not event.media and event.message:
+            if (not event.media or event.media.webpage) and event.message:
                 command = event.message.message
                 command = command.lower()
                 output = "Unknown command"
@@ -208,11 +208,13 @@ with TelegramClient(getSession(), api_id, api_hash,
                     output = "Cleaning "+tempFolder+"\n"
                     output+=subprocess.run(["rm "+tempFolder+"/*."+TELEGRAM_DAEMON_TEMP_SUFFIX], shell=True, stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout
                 else:
-                    download_uri = re.search(r"https://t.me/c/(?P<channel_id>[0-9]+)/(?P<message_id>[0-9]+)", command)
-                    if download_uri:
-                        channel_msg = await client.get_messages(PeerChannel(int(download_uri['channel_id'])), 1,
-                                                            ids=int(download_uri['message_id']))
-                        await do_download(event, channel_msg)
+                    download_uris = re.finditer(r"https://t.me/c/(?P<channel_id>[0-9]+)/(?P<message_id>[0-9]+)", command)
+                    if download_uris:
+                        for download_uri in download_uris:
+                            channel_msg = await client.get_messages(PeerChannel(int(download_uri['channel_id'])), 1,
+                                                                    ids=int(download_uri['message_id']))
+                            await do_download(event, channel_msg)
+
                         return
                     else:
                         output = "Send message link to download or use available commands: list, status, clean."
