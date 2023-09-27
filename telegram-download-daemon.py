@@ -212,14 +212,20 @@ with TelegramClient(getSession(), api_id, api_hash,
                     output += subprocess.run(["rm " + tempFolder + "/*." + TELEGRAM_DAEMON_TEMP_SUFFIX], shell=True,
                                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
                 else:
-                    download_uris = re.finditer(r"https://t.me/c/(?P<channel_id>[0-9]+)/(?P<message_id>[0-9]+)",
+                    download_uris = re.finditer(r"https://t.me/c/(?P<message_channel>[0-9]+)(/(?P<message_id>[0-9]+))?",
                                                 command)
                     if download_uris:
                         for download_uri in download_uris:
-                            channel_msg = await client.get_messages(PeerChannel(int(download_uri['channel_id'])), 1,
-                                                                    ids=int(download_uri['message_id']))
-                            await do_download(event, channel_msg)
+                            message_channel = download_uri['message_channel']
+                            message_id = download_uri['message_id']
 
+                            if message_id is None:
+                                channel_msgs = await client.get_messages(PeerChannel(int(message_channel)), None, reverse=True)
+                            else:
+                                channel_msgs = [await client.get_messages(PeerChannel(int(message_channel)), 1, ids=int(message_id))]
+
+                            for channel_msg in channel_msgs:
+                                await do_download(event, channel_msg)
                         return
                     else:
                         output = "Send message link to download or use available commands: list, status, clean."
@@ -238,7 +244,7 @@ with TelegramClient(getSession(), api_id, api_hash,
                 filename = getFilename(download_message)
                 if (os.path.exists(
                         "{0}/{1}.{2}".format(tempFolder, filename, TELEGRAM_DAEMON_TEMP_SUFFIX)) or os.path.exists(
-                        "{0}/{1}".format(downloadFolder, filename))) and duplicates == "ignore":
+                    "{0}/{1}".format(downloadFolder, filename))) and duplicates == "ignore":
                     message = await event.reply("{0} already exists. Ignoring it.".format(filename))
                 else:
                     message = await event.reply("{0} added to queue".format(filename))
