@@ -1,4 +1,5 @@
 from os import getenv, path
+
 from telethon.sessions import StringSession
 
 TELEGRAM_DAEMON_SESSION_PATH = getenv("TELEGRAM_DAEMON_SESSION_PATH")
