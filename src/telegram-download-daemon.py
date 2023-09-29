@@ -15,6 +15,7 @@ import re
 import string
 import subprocess
 import time
+import traceback
 from mimetypes import guess_extension
 from shutil import move
 
@@ -22,6 +23,7 @@ from humanize import naturalsize
 from telethon import TelegramClient, events, __version__
 from telethon.tl.types import PeerChannel, DocumentAttributeFilename, DocumentAttributeVideo
 
+from download_media import DownloadMedia
 from sessionManager import getSession, saveSession
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s]%(name)s:%(message)s',
@@ -163,7 +165,7 @@ async def set_progress(filename, message, received, total):
         return
     percentage = math.trunc(received / total * 10000) / 100
 
-    progress_message = "{0} % ({1} / {2})".format(percentage, naturalsize(received), naturalsize(total))
+    progress_message = "{0} : {1}% ({2} / {3})".format(filename, percentage, naturalsize(received), naturalsize(total))
     in_progress[filename] = progress_message
 
     currentTime = time.time()
@@ -182,118 +184,159 @@ with TelegramClient(getSession(), api_id, api_hash,
 
     @client.on(events.NewMessage())
     async def handler(event):
-
         if event.to_id != peerChannel:
             return
 
-        print(event)
+        print('Received: ', event)
 
         try:
+            if (not event.media or hasattr(event.media, 'webpage')) and event.message:
+                output = await parse_command(event)
 
-            if (not event.media or event.media.webpage) and event.message:
-                command = event.message.message
-                command = command.lower()
-                output = "Unknown command"
-
-                if command == "list":
-                    output = subprocess.run(["ls -l " + downloadFolder], shell=True, stdout=subprocess.PIPE,
-                                            stderr=subprocess.STDOUT).stdout.decode('utf-8')
-                elif command == "status":
-                    try:
-                        output = "".join(["{0}: {1}\n".format(key, value) for (key, value) in in_progress.items()])
-                        if output:
-                            output = "Active downloads:\n\n" + output
-                        else:
-                            output = "No active downloads"
-                    except:
-                        output = "Some error occured while checking the status. Retry."
-                elif command == "clean":
-                    output = "Cleaning " + tempFolder + "\n"
-                    output += subprocess.run(["rm " + tempFolder + "/*." + TELEGRAM_DAEMON_TEMP_SUFFIX], shell=True,
-                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout
-                else:
-                    download_uris = re.finditer(r"https://t.me/c/(?P<message_channel>[0-9]+)(/(?P<message_id>[0-9]+))?",
-                                                command)
-                    if download_uris:
-                        for download_uri in download_uris:
-                            message_channel = download_uri['message_channel']
-                            message_id = download_uri['message_id']
-
-                            if message_id is None:
-                                channel_msgs = await client.get_messages(PeerChannel(int(message_channel)), None, reverse=True)
-                            else:
-                                channel_msgs = [await client.get_messages(PeerChannel(int(message_channel)), 1, ids=int(message_id))]
-
-                            for channel_msg in channel_msgs:
-                                await do_download(event, channel_msg)
-                        return
-                    else:
-                        output = "Send message link to download or use available commands: list, status, clean."
-
-                await log_reply(event, output)
-
-            await do_download(event, event.message)
-
+                if output:
+                    await log_reply(event, output)
+            else:
+                # Message with attachment
+                await queue_download(event, event.message)
         except Exception as e:
             print('Events handler error: ', e)
+            traceback.print_tb(e.__traceback__)
 
 
-    async def do_download(event, download_message=None):
-        if download_message.media:
-            if hasattr(download_message.media, 'document') or hasattr(download_message.media, 'photo'):
-                filename = getFilename(download_message)
-                if (os.path.exists(
-                        "{0}/{1}.{2}".format(tempFolder, filename, TELEGRAM_DAEMON_TEMP_SUFFIX)) or os.path.exists(
-                    "{0}/{1}".format(downloadFolder, filename))) and duplicates == "ignore":
-                    message = await event.reply("{0} already exists. Ignoring it.".format(filename))
+    async def parse_command(event):
+        command = event.message.message.lower()
+
+        match command:
+            case 'list':
+                return list_download_folder()
+            case 'status':
+                return print_status()
+            case 'clean':
+                return clean_downloads_folder()
+            case _:  # default
+                download_uris = list(
+                    re.finditer(r"https://t.me/c/(?P<message_channel>[0-9]+)(/(?P<message_id>[0-9]+))?",
+                                command))
+
+                if download_uris:
+                    for download_uri in download_uris:
+                        message_channel = download_uri['message_channel']
+                        message_id = download_uri['message_id']
+
+                        if message_id is None:
+                            channel_msgs = await client.get_messages(PeerChannel(int(message_channel)), None,
+                                                                     reverse=True)
+
+                            for channel_msg in channel_msgs:
+                                await queue_download(event, DownloadMedia(channel=channel_msg.chat.id,
+                                                                          message_id=channel_msg.id,
+                                                                          destination=os.path.join('.',
+                                                                                                   channel_msg.chat.title)))
+                        else:
+                            await queue_download(event, DownloadMedia(channel=message_channel, message_id=message_id,
+                                                                      destination='.'))
+
                 else:
-                    message = await event.reply("{0} added to queue".format(filename))
-                    await queue.put([download_message, message])
+                    return "Send message link to download or use available commands: list, status, clean."
+
+
+    def list_download_folder():
+        """
+        Reply with the files and folders on downloads folder
+        :param event:
+        :return:
+        TODO: Replace with python method instead of `ls`, to make compatible with Windows
+        """
+        return subprocess.run(["ls -l " + downloadFolder], shell=True, stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT).stdout.decode('utf-8')
+
+
+    def print_status():
+        try:
+            if in_progress:
+                return "Active downloads\n{downloads}\nPending downloads: {pending}".format(
+                    downloads="\n".join([" - {0}".format(value) for (value) in in_progress.values()]),
+                    pending=queue.qsize())
             else:
-                message = await event.reply("That is not downloadable. Try to send it as a file.")
+                return "No active downloads"
+        except:
+            return "Some error occurred while checking the status. Retry."
+
+
+    def clean_downloads_folder():
+        return "Cleaning {folder}\n{cmdOutput}".format(folder=tempFolder, cmdOutput=subprocess.run(
+            ["rm " + tempFolder + "/*." + TELEGRAM_DAEMON_TEMP_SUFFIX], shell=True, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT).stdout)
+
+
+    async def queue_download(event, download_media=None):
+        reply_msg = await event.reply("{link} added to queue".format(link=download_media.get_link()))
+        await queue.put(dict(event=event, download_media=download_media, reply_msg=reply_msg))
+
+
+    async def get_media_message(message_media):
+        if isinstance(message_media, DownloadMedia):
+            message = await message_media.get_message(client)
+        else:
+            message = message_media
+
+        if message.media:
+            if hasattr(message.media, 'document') or hasattr(message.media, 'photo'):
+                filename = getFilename(message)
+
+                if (os.path.exists(os.path.join(tempFolder, "{0}.{1}".format(filename, TELEGRAM_DAEMON_TEMP_SUFFIX)))
+                    or os.path.exists(os.path.join(downloadFolder, filename))) and duplicates == "ignore":
+                    raise "{0} already exists. Ignoring it.".format(filename)
+
+                return message
+            else:
+                raise "That is not downloadable. Try to send it as a file."
 
 
     async def worker():
         while True:
             try:
-                element = await queue.get()
-                event = element[0]
-                message = element[1]
+                item = await queue.get()
+                download_media = item['download_media']
+                reply_msg = item['reply_msg']
 
-                filename = getFilename(event)
-                fileName, fileExtension = os.path.splitext(filename)
-                tempfilename = fileName + "-" + getRandomId(8) + fileExtension
+                message = await get_media_message(download_media)
 
-                if os.path.exists(
-                        "{0}/{1}.{2}".format(tempFolder, tempfilename, TELEGRAM_DAEMON_TEMP_SUFFIX)) or os.path.exists(
-                    "{0}/{1}".format(downloadFolder, filename)):
-                    if duplicates == "rename":
-                        filename = tempfilename
+                filename = getFilename(message)
+                file_name, file_extension = os.path.splitext(filename)
+                temp_filename = file_name + "-" + getRandomId(8) + file_extension
 
-                if hasattr(event.media, 'photo'):
+                temp_filepath = os.path.join(tempFolder, "{0}.{1}".format(temp_filename, TELEGRAM_DAEMON_TEMP_SUFFIX))
+                final_filepath_folder = os.path.join(downloadFolder, download_media.destination)
+                final_filepath = os.path.join(downloadFolder, download_media.destination, filename)
+
+                if (os.path.exists(temp_filepath) or os.path.exists(final_filepath)) and duplicates == "rename":
+                    filename = temp_filename
+
+                if hasattr(message.media, 'photo'):
                     size = 0
                 else:
-                    size = event.media.document.size
+                    size = message.media.document.size
 
                 await log_reply(
-                    message,
+                    reply_msg,
                     "Downloading file {0} ({1} bytes)".format(filename, size)
                 )
 
-                download_callback = lambda received, total: set_progress(filename, message, received, total)
+                download_callback = lambda received, total: set_progress(filename, reply_msg, received, total)
 
-                await client.download_media(event,
-                                            "{0}/{1}.{2}".format(tempFolder, filename, TELEGRAM_DAEMON_TEMP_SUFFIX),
-                                            progress_callback=download_callback)
-                set_progress(filename, message, 100, 100)
-                move("{0}/{1}.{2}".format(tempFolder, filename, TELEGRAM_DAEMON_TEMP_SUFFIX),
-                     "{0}/{1}".format(downloadFolder, filename))
-                await log_reply(message, "{0} ready".format(filename))
+                await client.download_media(message, temp_filepath, progress_callback=download_callback)
+                set_progress(filename, reply_msg, 100, 100)
+
+                if not os.path.exists(final_filepath_folder):
+                    os.makedirs(final_filepath_folder)
+                move(temp_filepath, final_filepath)
+                await log_reply(reply_msg, "{0} ready".format(filename))
 
                 queue.task_done()
             except Exception as e:
                 try:
-                    await log_reply(message, "Error: {}".format(str(e)))  # If it failed, inform the user about it.
+                    await log_reply(reply_msg, "Error: {}".format(str(e)))  # If it failed, inform the user about it.
                 except:
                     pass
                 print('Queue worker error: ', e)
