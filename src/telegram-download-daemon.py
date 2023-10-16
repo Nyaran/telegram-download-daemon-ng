@@ -215,12 +215,13 @@ with TelegramClient(getSession(), api_id, api_hash,
                 return clean_downloads_folder()
             case _:  # default
                 download_uris = list(
-                    re.finditer(r"https://t.me/c/(?P<message_channel>[0-9]+)(/(?P<message_id>[0-9]+))?",
-                                command))
+                    re.finditer(r"https://t.me/(c/)?(?P<message_channel>\w+)(/(?P<message_id>[0-9]+))?",
+                                event.message.message))
 
                 if download_uris:
                     for download_uri in download_uris:
                         message_channel = download_uri['message_channel']
+                        message_channel = message_channel if message_channel.isdigit() else (await client.get_entity(message_channel)).id
                         message_id = download_uri['message_id']
 
                         if message_id is None:
