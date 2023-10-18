@@ -36,9 +36,8 @@ dependencies = [
   "pyasn1==0.5.0",
   "pycparser==2.21",
   "rsa==4.9",
-  "Telethon>=1.28.2",
+  "Telethon==1.31.1",
   "humanize==4.8.0",
-
 ]
 
 [project.urls]
