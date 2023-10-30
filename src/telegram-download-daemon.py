@@ -197,7 +197,14 @@ with TelegramClient(getSession(), api_id, api_hash,
                     await log_reply(event, output)
             else:
                 # Message with attachment
-                await queue_download(event, event.message)
+                if event.message.forward:
+                    channel_msg = event.message.forward
+                    await queue_download(event, DownloadMedia(channel=channel_msg.chat.id,
+                                                              message_id=channel_msg.channel_post,
+                                                              destination=os.path.join('.', channel_msg.chat.title)))
+
+                else:
+                    await queue_download(event, event.message)
         except Exception as e:
             print('Events handler error: ', e)
             traceback.print_tb(e.__traceback__)
@@ -271,7 +278,8 @@ with TelegramClient(getSession(), api_id, api_hash,
 
 
     async def queue_download(event, download_media=None):
-        reply_msg = await event.reply("{link} added to queue".format(link=download_media.get_link()))
+        item = download_media.get_link() if isinstance(download_media, DownloadMedia) else download_media.media
+        reply_msg = await event.reply("{item} added to queue".format(item=item))
         await queue.put(dict(event=event, download_media=download_media, reply_msg=reply_msg))
 
 
