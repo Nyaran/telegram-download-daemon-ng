@@ -24,7 +24,7 @@ from telethon import TelegramClient, events, __version__
 from telethon.tl.types import PeerChannel, DocumentAttributeFilename, DocumentAttributeVideo
 
 from download_media import DownloadMedia
-from sessionManager import get_session, save_session
+from session_manager import get_session, save_session
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s]%(name)s:%(message)s',
                     level=logging.WARNING)
