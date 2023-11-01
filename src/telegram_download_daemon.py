@@ -24,7 +24,7 @@ from telethon import TelegramClient, events, __version__
 from telethon.tl.types import PeerChannel, DocumentAttributeFilename, DocumentAttributeVideo
 
 from download_media import DownloadMedia
-from sessionManager import getSession, saveSession
+from sessionManager import get_session, save_session
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s]%(name)s:%(message)s',
                     level=logging.WARNING)
@@ -47,7 +47,7 @@ parser = argparse.ArgumentParser(
     description="Script to download files from a Telegram Channel.")
 parser.add_argument(
     "--api-id",
-    required=TELEGRAM_DAEMON_API_ID == None,
+    required=TELEGRAM_DAEMON_API_ID is None,
     type=int,
     default=TELEGRAM_DAEMON_API_ID,
     help=
@@ -55,7 +55,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--api-hash",
-    required=TELEGRAM_DAEMON_API_HASH == None,
+    required=TELEGRAM_DAEMON_API_HASH is None,
     type=str,
     default=TELEGRAM_DAEMON_API_HASH,
     help=
@@ -75,7 +75,7 @@ parser.add_argument(
     'Destination path for temporary files (default is using the same downloaded files directory).')
 parser.add_argument(
     "--channel",
-    required=TELEGRAM_DAEMON_CHANNEL == None,
+    required=TELEGRAM_DAEMON_CHANNEL is None,
     type=int,
     default=TELEGRAM_DAEMON_CHANNEL,
     help=
@@ -98,7 +98,7 @@ downloadFolder = args.dest
 tempFolder = args.temp
 duplicates = args.duplicates
 worker_count = multiprocessing.cpu_count()
-updateFrequency = 10
+update_frequency = 10
 lastUpdate = 0
 # multiprocessing.Value('f', 0)
 
@@ -111,11 +111,12 @@ proxy = None
 
 # End of interesting parameters
 
-async def sendHelloMessage(client, peerChannel):
-    entity = await client.get_entity(peerChannel)
-    print("Telegram Download Daemon NG " + TDD_VERSION + " using Telethon " + __version__)
-    await client.send_message(entity, "Telegram Download Daemon NG " + TDD_VERSION + " using Telethon " + __version__)
-    await client.send_message(entity, "Hi! Ready for your files!")
+async def send_hello_message(client_ref, peer_channel):
+    entity = await client_ref.get_entity(peer_channel)
+    message = "Telegram Download Daemon NG {} using Telethon {}".format(TDD_VERSION, __version__)
+    print(message)
+    await client_ref.send_message(entity, message)
+    await client_ref.send_message(entity, "Hi! Ready for your files!")
 
 
 async def log_reply(message, reply):
@@ -123,31 +124,31 @@ async def log_reply(message, reply):
     await message.edit(reply)
 
 
-def getRandomId(len):
+def get_random_id(length):
     chars = string.ascii_lowercase + string.digits
-    return ''.join(random.choice(chars) for x in range(len))
+    return ''.join(random.choice(chars) for _ in range(length))
 
 
-def getFilename(event: events.NewMessage.Event):
-    mediaFileName = "unknown"
+def get_filename(event: events.NewMessage.Event):
+    media_file_name = "unknown"
 
     if hasattr(event.media, 'photo'):
-        mediaFileName = str(event.media.photo.id) + ".jpeg"
+        media_file_name = str(event.media.photo.id) + ".jpeg"
     elif hasattr(event.media, 'document'):
         for attribute in event.media.document.attributes:
             if isinstance(attribute, DocumentAttributeFilename):
-                mediaFileName = attribute.file_name
+                media_file_name = attribute.file_name
                 break
             if isinstance(attribute, DocumentAttributeVideo):
                 if event.message != '':
-                    mediaFileName = event.message.split(os.linesep)[0]
+                    media_file_name = event.message.split(os.linesep)[0]
                 else:
-                    mediaFileName = str(event.media.document.id)
-                mediaFileName += guess_extension(event.media.document.mime_type)
+                    media_file_name = str(event.media.document.id)
+                media_file_name += guess_extension(event.media.document.mime_type)
 
-    mediaFileName = "".join(c for c in mediaFileName if c.isalnum() or c in "()._- ")
+    media_file_name = "".join(c for c in media_file_name if c.isalnum() or c in "()._- ")
 
-    return mediaFileName
+    return media_file_name
 
 
 in_progress = {}
@@ -155,7 +156,7 @@ in_progress = {}
 
 async def set_progress(filename, message, received, total):
     global lastUpdate
-    global updateFrequency
+    global update_frequency
 
     if received >= total:
         try:
@@ -168,15 +169,15 @@ async def set_progress(filename, message, received, total):
     progress_message = "{0} : {1}% ({2} / {3})".format(filename, percentage, naturalsize(received), naturalsize(total))
     in_progress[filename] = progress_message
 
-    currentTime = time.time()
-    if (currentTime - lastUpdate) > updateFrequency:
+    current_time = time.time()
+    if (current_time - lastUpdate) > update_frequency:
         await log_reply(message, progress_message)
-        lastUpdate = currentTime
+        lastUpdate = current_time
 
 
-with TelegramClient(getSession(), api_id, api_hash,
+with TelegramClient(get_session(), api_id, api_hash,
                     proxy=proxy).start() as client:
-    saveSession(client.session)
+    save_session(client.session)
 
     queue = asyncio.Queue()
     peerChannel = PeerChannel(channel_id)
@@ -228,7 +229,8 @@ with TelegramClient(getSession(), api_id, api_hash,
                 if download_uris:
                     for download_uri in download_uris:
                         message_channel = download_uri['message_channel']
-                        message_channel = message_channel if message_channel.isdigit() else (await client.get_entity(message_channel)).id
+                        message_channel = message_channel if message_channel.isdigit() else (
+                            await client.get_entity(message_channel)).id
                         message_id = download_uri['message_id']
 
                         if message_id is None:
@@ -251,7 +253,6 @@ with TelegramClient(getSession(), api_id, api_hash,
     def list_download_folder():
         """
         Reply with the files and folders on downloads folder
-        :param event:
         :return:
         TODO: Replace with python method instead of `ls`, to make compatible with Windows
         """
@@ -291,10 +292,10 @@ with TelegramClient(getSession(), api_id, api_hash,
 
         if message.media:
             if hasattr(message.media, 'document') or hasattr(message.media, 'photo'):
-                filename = getFilename(message)
+                filename = get_filename(message)
 
                 if (os.path.exists(os.path.join(tempFolder, "{0}.{1}".format(filename, TELEGRAM_DAEMON_TEMP_SUFFIX)))
-                    or os.path.exists(os.path.join(downloadFolder, filename))) and duplicates == "ignore":
+                        or os.path.exists(os.path.join(downloadFolder, filename))) and duplicates == "ignore":
                     raise "{0} already exists. Ignoring it.".format(filename)
 
                 return message
@@ -303,6 +304,7 @@ with TelegramClient(getSession(), api_id, api_hash,
 
 
     async def worker():
+        reply_msg = None
         while True:
             try:
                 item = await queue.get()
@@ -311,9 +313,9 @@ with TelegramClient(getSession(), api_id, api_hash,
 
                 message = await get_media_message(download_media)
 
-                filename = getFilename(message)
+                filename = get_filename(message)
                 file_name, file_extension = os.path.splitext(filename)
-                temp_filename = file_name + "-" + getRandomId(8) + file_extension
+                temp_filename = file_name + "-" + get_random_id(8) + file_extension
 
                 temp_filepath = os.path.join(tempFolder, "{0}.{1}".format(temp_filename, TELEGRAM_DAEMON_TEMP_SUFFIX))
                 final_filepath_folder = os.path.join(downloadFolder, download_media.destination)
@@ -335,7 +337,7 @@ with TelegramClient(getSession(), api_id, api_hash,
                 download_callback = lambda received, total: set_progress(filename, reply_msg, received, total)
 
                 await client.download_media(message, temp_filepath, progress_callback=download_callback)
-                set_progress(filename, reply_msg, 100, 100)
+                await set_progress(filename, reply_msg, 100, 100)
 
                 if not os.path.exists(final_filepath_folder):
                     os.makedirs(final_filepath_folder)
@@ -358,7 +360,7 @@ with TelegramClient(getSession(), api_id, api_hash,
         for i in range(worker_count):
             task = loop.create_task(worker())
             tasks.append(task)
-        await sendHelloMessage(client, peerChannel)
+        await send_hello_message(client, peerChannel)
         await client.run_until_disconnected()
         for task in tasks:
             task.cancel()
