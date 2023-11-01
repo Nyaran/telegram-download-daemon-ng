@@ -48,7 +48,7 @@ You need to configure these values:
 You can define them as Environment Variables, or put them as a command line arguments, for example:
 
 ```shell
-python3 telegram-download-daemon.py --api-id <your-id> --api-hash <your-hash> --channel <channel-number>
+python3 telegram_download_daemon.py --api-id <your-id> --api-hash <your-hash> --channel <channel-number>
 ```
 
 Finally, resend any file link to the channel to start the downloading. This daemon can manage many downloads
