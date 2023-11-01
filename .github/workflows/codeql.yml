@@ -79,3 +79,11 @@ jobs:
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"
+        upload: false  # disables the failing upload (debug only)
+
+    # Upload as action artifact (debug only)
+    - name: Upload SARIF
+      uses: actions/upload-artifact@v3
+      with:
+        name: sarif
+        path: '/home/runner/work//telegram-download-daemon-ng/results/*.sarif'
