@@ -60,6 +60,47 @@ You can also 'talk' to this daemon using your Telegram client:
 * Say "status" to the daemon to check the current status.
 * Say "clean" to remove stale (*.tdd) files from temporary directory.
 
-# Docker
+# Docker/Podman
 
-TODO
+> If you are using *Podman* instead of *Docker*, just replace the `docker` word in the following commands by `podman`.
+
+On a terminal run:
+
+```shell
+docker pull nyaran/telegram-download-daemon-ng
+```
+
+Then run it.
+
+Replace values for `TELEGRAM_DAEMON_API_ID`, `TELEGRAM_DAEMON_API_HASH` and `TELEGRAM_DAEMON_CHANNEL` (see the table
+above), and set the paths for the volumes.
+
+```shell
+docker run \
+ --rm \
+ -e TELEGRAM_DAEMON_API_ID="YOUR_API_ID_HERE" \
+ -e TELEGRAM_DAEMON_API_HASH="YOUR_API_HASH_HERE" \
+ -e TELEGRAM_DAEMON_CHANNEL="YOUR_CHANNEL_ID_HERE" \
+ -v "DOWNLOADS_VOLUME_PATH_HERE":/downloads \
+ -v "SESSION_VOLUME_PATH_HERE":/session \
+ -v "TEMP_VOLUME_PATH_HERE":/temp \
+ --name telegram-download-daemon-ng \
+ nyaran/telegram-download-daemon-ng
+```
+
+Note. The first time, you need to generate your session, to do that, run the image in the interactive way, using `-it` (
+is important
+to use the same parameters)
+
+```shell
+docker run -it \
+ --rm \
+ -e TELEGRAM_DAEMON_API_ID="YOUR_API_ID_HERE" \
+ -e TELEGRAM_DAEMON_API_HASH="YOUR_API_HASH_HERE" \
+ -e TELEGRAM_DAEMON_CHANNEL="YOUR_CHANNEL_ID_HERE" \
+ -v "DOWNLOADS_VOLUME_PATH_HERE":/downloads \
+ -v "SESSION_VOLUME_PATH_HERE":/session \
+ -v "TEMP_VOLUME_PATH_HERE":/temp \
+ --name telegram-download-daemon-ng \
+ nyaran/telegram-download-daemon-ng
+```
