@@ -1,6 +1,7 @@
 # Project
-## Session file
-*.session
+data
+dist
+
 ## Other stuff
 Dockerfile
 .dockerignore

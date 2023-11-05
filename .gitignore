@@ -1,7 +1,6 @@
 # Project
 data
-## Session file
-*.session
+dist
 
 ### VisualStudioCode template
 .vscode/*
