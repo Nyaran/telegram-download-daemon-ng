@@ -1,6 +1,7 @@
 # Project
 data
 dist
+*.session
 
 ### VisualStudioCode template
 .vscode/*
