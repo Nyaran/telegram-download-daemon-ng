@@ -1,13 +1,16 @@
 FROM python:3.12
 
-WORKDIR /app
-
-COPY . /app
+ARG POETRY_VERSION=1.0
 
 ENV TELEGRAM_DAEMON_DEST "/downloads"
 ENV TELEGRAM_DAEMON_SESSION_PATH "/session"
 ENV TELEGRAM_DAEMON_TEMP "/temp"
 
-RUN python3 -m pip install /app
+WORKDIR /usr/src/telegram-download-daemon-ng
 
-CMD [ "python3", "/app/src/telegram_download_daemon.py" ]
+COPY . /usr/src/telegram-download-daemon-ng
+
+RUN python3 -m pip install "poetry~=${POETRY_VERSION}"
+RUN python3 -m poetry install --no-interaction
+
+CMD [ "poetry", "run", "python3", "-m", "telegram_download_daemon_ng" ]

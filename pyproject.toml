@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "telegram-download-daemon-ng"
-version = "1.0.0-beta.4"
+version = "1.0.0-beta.5"
 description = "A daemon to automate telegram download of big files."
 authors = ["Luis Zurro <luiszurrodecos@gmail.com>"]
 readme = "README.md"
@@ -38,7 +38,7 @@ telethon = "1.32.0"
 humanize = "4.8.0"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core~=1.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
