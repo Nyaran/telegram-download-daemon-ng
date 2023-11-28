@@ -30,6 +30,7 @@ class TelegramDownloadDaemon:
         self.api_id = args.api_id
         self.api_hash = args.api_hash
         self.channel_id = args.channel
+        self.bot = args.bot
         self.download_folder = args.dest
         self.temp_folder = args.temp
         self.duplicates = args.duplicates
@@ -103,8 +104,7 @@ class TelegramDownloadDaemon:
             self.last_update = current_time
 
     def start(self, version):
-        with TelegramClient(get_session(), self.api_id, self.api_hash,
-                            proxy=self.proxy).start() as client:
+        with TelegramClient(get_session(), self.api_id, self.api_hash, proxy=self.proxy).start(bot_token=self.bot) as client:
             save_session(client.session)
 
             queue = asyncio.Queue()

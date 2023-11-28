@@ -43,6 +43,7 @@ You need to configure these values:
 | `TELEGRAM_DAEMON_API_ID`       |      `--api-id`       | api_id from https://core.telegram.org/api/obtaining_api_id                                                                                                                                                                                                                  |                       |
 | `TELEGRAM_DAEMON_API_HASH`     |     `--api-hash`      | api_hash from https://core.telegram.org/api/obtaining_api_id                                                                                                                                                                                                                |                       |
 | `TELEGRAM_DAEMON_CHANNEL`      |      `--channel`      | Channel id to download from it (Please, check [Issue 45](https://github.com/alfem/telegram-download-daemon/issues/45), [Issue 48](https://github.com/alfem/telegram-download-daemon/issues/48) and [Issue 73](https://github.com/alfem/telegram-download-daemon/issues/73)) |                       |
+| `TELEGRAM_DAEMON_BOT`          |        `--bot`        | Bot identifier to use. If not present, it will be requested (or the phone number) on first start                                                                                                                                                                            |                       |
 | `TELEGRAM_DAEMON_SESSION_PATH` |                       | Path with session files                                                                                                                                                                                                                                                     |                       |
 | `TELEGRAM_DAEMON_DEST`         |       `--dest`        | Destination path for downloaded files                                                                                                                                                                                                                                       | `/telegram-downloads` |
 | `TELEGRAM_DAEMON_TEMP`         |       `--temp`        | Destination path for temporary (download in progress) files                                                                                                                                                                                                                 | use --dest            |
@@ -91,9 +92,8 @@ docker run \
  nyaran/telegram-download-daemon-ng
 ```
 
-Note. The first time, you need to generate your session, to do that, run the image in the interactive way, using `-it` (
-is important
-to use the same parameters)
+Note. The first time, you need to generate your session, to do that, and if you are not providing your bot ID, run the
+image in the interactive way, using `-it` (is important to use the same parameters)
 
 ```shell
 docker run -it \
@@ -101,6 +101,21 @@ docker run -it \
  -e TELEGRAM_DAEMON_API_ID="YOUR_API_ID_HERE" \
  -e TELEGRAM_DAEMON_API_HASH="YOUR_API_HASH_HERE" \
  -e TELEGRAM_DAEMON_CHANNEL="YOUR_CHANNEL_ID_HERE" \
+ -v "DOWNLOADS_VOLUME_PATH_HERE":/downloads \
+ -v "SESSION_VOLUME_PATH_HERE":/session \
+ -v "TEMP_VOLUME_PATH_HERE":/temp \
+ --name telegram-download-daemon-ng \
+ nyaran/telegram-download-daemon-ng
+```
+
+Or just provide the bot ID (Replace "YOUR_BOT_ID" with the identifier of your bot):
+```shell
+docker run -it \
+ --rm \
+ -e TELEGRAM_DAEMON_API_ID="YOUR_API_ID_HERE" \
+ -e TELEGRAM_DAEMON_API_HASH="YOUR_API_HASH_HERE" \
+ -e TELEGRAM_DAEMON_CHANNEL="YOUR_CHANNEL_ID_HERE" \
+ -e TELEGRAM_DAEMON_BOT="YOUR_BOT_ID" \
  -v "DOWNLOADS_VOLUME_PATH_HERE":/downloads \
  -v "SESSION_VOLUME_PATH_HERE":/session \
  -v "TEMP_VOLUME_PATH_HERE":/temp \
