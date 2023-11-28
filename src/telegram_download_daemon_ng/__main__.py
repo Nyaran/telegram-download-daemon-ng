@@ -9,6 +9,7 @@ __version__ = "1.0.0-beta.5"
 TELEGRAM_DAEMON_API_ID = os.getenv("TELEGRAM_DAEMON_API_ID")
 TELEGRAM_DAEMON_API_HASH = os.getenv("TELEGRAM_DAEMON_API_HASH")
 TELEGRAM_DAEMON_CHANNEL = os.getenv("TELEGRAM_DAEMON_CHANNEL")
+TELEGRAM_DAEMON_BOT = os.getenv("TELEGRAM_DAEMON_BOT")
 
 TELEGRAM_DAEMON_SESSION_PATH = os.getenv("TELEGRAM_DAEMON_SESSION_PATH")
 
@@ -45,6 +46,12 @@ parser.add_argument(
     type=str,
     default=TELEGRAM_DAEMON_TEMP,
     help='Destination path for temporary files (default is using the same downloaded files directory).')
+parser.add_argument(
+    "--bot",
+    type=str,
+    default=TELEGRAM_DAEMON_BOT,
+    help='Bot identifier to use. If not present, it will be requested (or the phone number) on first start'
+)
 parser.add_argument(
     "--channel",
     required=TELEGRAM_DAEMON_CHANNEL is None,
