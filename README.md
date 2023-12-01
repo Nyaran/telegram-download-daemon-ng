@@ -4,9 +4,8 @@
 [![Test](https://github.com/Nyaran/telegram-download-daemon-ng/actions/workflows/test.yml/badge.svg)](https://github.com/Nyaran/telegram-download-daemon-ng/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/Nyaran/telegram-download-daemon-ng/branch/main/graph/badge.svg?token=JAAQ2DCW9D)](https://codecov.io/gh/Nyaran/telegram-download-daemon-ng)
 
-[![PyPI Downloads](https://img.shields.io/pypi/dw/telegram-download-daemon-ng)](https://pypi.org/project/telegram-download-daemon-ng)
-[![Docker Pulls](https://img.shields.io/docker/pulls/nyaran/telegram-download-daemon-ng)](https://hub.docker.com/r/nyaran/telegram-download-daemon-ng)
-[![Docker ghcr.io Pulls](https://img.shields.io/github/downloads/Nyaran/telegram-download-daemon-ng/total)](https://github.com/Nyaran/telegram-download-daemon-ng/pkgs/container/telegram-download-daemon-ng)
+[![PyPI downloads](https://img.shields.io/pypi/dw/telegram-download-daemon-ng?label=PyPI%20downloads)](https://pypi.org/project/telegram-download-daemon-ng)
+[![Docker pulls](https://img.shields.io/docker/pulls/nyaran/telegram-download-daemon-ng?label=Docker%20pulls)](https://hub.docker.com/r/nyaran/telegram-download-daemon-ng)
 
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Nyaran-blue?logo=ko-fi)](https://ko-fi.com/nyaran)
 [![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-Nyaran-blue?logo=buy-me-a-coffee)](https://www.buymeacoffee.com/nyaran)
