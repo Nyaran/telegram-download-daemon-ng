@@ -104,7 +104,8 @@ class TelegramDownloadDaemon:
             self.last_update = current_time
 
     def start(self, version):
-        with TelegramClient(get_session(), self.api_id, self.api_hash, proxy=self.proxy).start(bot_token=self.bot) as client:
+        with TelegramClient(get_session(), self.api_id, self.api_hash, proxy=self.proxy).start(
+                bot_token=self.bot) as client:
             save_session(client.session)
 
             queue = asyncio.Queue()
@@ -127,13 +128,15 @@ class TelegramDownloadDaemon:
                         # Message with attachment
                         if event.message.forward:
                             channel_msg = event.message.forward
-                            await queue_download(event, DownloadMedia(channel=channel_msg.chat.id,
-                                                                      message_id=channel_msg.channel_post,
-                                                                      destination=os.path.join('.',
-                                                                                               channel_msg.chat.title)))
+                            await queue_download(event,
+                                                 channel=channel_msg.chat.id,
+                                                 message_id=channel_msg.channel_post,
+                                                 destination=os.path.join('.', channel_msg.chat.title))
 
                         else:
-                            await queue_download(event, event.message)
+                            await queue_download(event,
+                                                 channel=event.message.peer_id.channel_id,
+                                                 message_id=event.message.id)
                 except Exception as e:
                     print('Events handler error: ', e)
                     traceback.print_tb(e.__traceback__)
@@ -165,14 +168,12 @@ class TelegramDownloadDaemon:
                                                                              reverse=True)
 
                                     for channel_msg in channel_msgs:
-                                        await queue_download(event, DownloadMedia(channel=channel_msg.chat.id,
-                                                                                  message_id=channel_msg.id,
-                                                                                  destination=os.path.join('.',
-                                                                                                           channel_msg.chat.title)))
+                                        await queue_download(event,
+                                                             channel=channel_msg.chat.id,
+                                                             message_id=channel_msg.id,
+                                                             destination=os.path.join('.', channel_msg.chat.title))
                                 else:
-                                    await queue_download(event,
-                                                         DownloadMedia(channel=message_channel, message_id=message_id,
-                                                                       destination='.'))
+                                    await queue_download(event, channel=message_channel, message_id=message_id)
 
                         else:
                             return "Send message link to download or use available commands: list, status, clean."
@@ -203,10 +204,11 @@ class TelegramDownloadDaemon:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT).stdout)
 
-            async def queue_download(event, download_media=None):
-                item = download_media.get_link() if isinstance(download_media, DownloadMedia) else download_media.media
-                reply_msg = await event.reply("{item} added to queue".format(item=item))
-                await queue.put(dict(event=event, download_media=download_media, reply_msg=reply_msg))
+            async def queue_download(event, channel, message_id, destination='.'):
+                new_download_media = DownloadMedia(channel=channel, message_id=message_id, destination=destination)
+
+                reply_msg = await event.reply("{item} added to queue".format(item=new_download_media.get_link()))
+                await queue.put(dict(event=event, download_media=new_download_media, reply_msg=reply_msg))
 
             async def get_media_message(message_media):
                 if isinstance(message_media, DownloadMedia):
@@ -233,10 +235,10 @@ class TelegramDownloadDaemon:
                 while True:
                     try:
                         item = await queue.get()
-                        download_media = item['download_media']
+                        download_item = item['download_media']
                         reply_msg = item['reply_msg']
 
-                        message = await get_media_message(download_media)
+                        message = await get_media_message(download_item)
 
                         filename = self.get_filename(message)
                         file_name, file_extension = os.path.splitext(filename)
@@ -244,8 +246,8 @@ class TelegramDownloadDaemon:
 
                         temp_filepath = os.path.join(self.temp_folder,
                                                      "{0}.{1}".format(temp_filename, TELEGRAM_DAEMON_TEMP_SUFFIX))
-                        final_filepath_folder = os.path.join(self.download_folder, download_media.destination)
-                        final_filepath = os.path.join(self.download_folder, download_media.destination, filename)
+                        final_filepath_folder = os.path.join(self.download_folder, download_item.destination)
+                        final_filepath = os.path.join(final_filepath_folder, filename)
 
                         if (os.path.exists(temp_filepath) or os.path.exists(
                                 final_filepath)) and self.duplicates == "rename":
