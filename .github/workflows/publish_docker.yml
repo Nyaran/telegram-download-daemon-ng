@@ -25,6 +25,8 @@ jobs:
           images: |
             nyaran/telegram-download-daemon-ng
             ghcr.io/Nyaran/telegram-download-daemon-ng
+          flavor:
+            latest=auto
           # generate Docker tags based on the following events/attributes
           tags: |
             type=schedule
@@ -63,3 +65,12 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Docker Hub Description
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: nyaran/telegram-download-daemon-ng
+          readme-filepath: ./README.md
+          short-description: ${{ github.event.repository.description }}
