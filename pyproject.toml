@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "telegram-download-daemon-ng"
-version = "1.0.0-beta.6"
+version = "1.0.0-beta.7"
 description = "A daemon to automate telegram download of big files."
 authors = ["Luis Zurro <luiszurrodecos@gmail.com>"]
 readme = "README.md"
