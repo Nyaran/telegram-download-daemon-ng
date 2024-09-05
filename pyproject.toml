@@ -29,7 +29,7 @@ keywords = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-cffi = "1.17.0"
+cffi = "1.17.1"
 cryptg = "0.4"
 pyaes = "1.6.1"
 pyasn1 = "0.6.0"
