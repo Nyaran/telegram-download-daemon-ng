@@ -211,13 +211,13 @@ pyasn1 = ">=0.1.3"
 
 [[package]]
 name = "telethon"
-version = "1.38.0"
+version = "1.38.1"
 description = "Full-featured Telegram client library for Python 3"
 optional = false
 python-versions = ">=3.5"
 files = [
-    {file = "Telethon-1.38.0-py3-none-any.whl", hash = "sha256:1c1fb1957c8b1e0b8b81aa601b9ec11b04f2ca26afb6bac345e124abfc268294"},
-    {file = "Telethon-1.38.0.tar.gz", hash = "sha256:c394cb9e59ccdd67bb1fdb735802ca13b53c4feed0436cdf970c26cc9626b6a8"},
+    {file = "Telethon-1.38.1-py3-none-any.whl", hash = "sha256:30c187017501bfb982b8af5659f864dda4108f77ea49cfce61e8f6fdb8a18d6e"},
+    {file = "Telethon-1.38.1.tar.gz", hash = "sha256:f9866c1e37197a0894e0c02aa56a6359bffb14a585e88e18e3e819df4fda399a"},
 ]
 
 [package.dependencies]
@@ -230,4 +230,4 @@ cryptg = ["cryptg"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "ff6e16f8c18777f5b2625ef73ddb8a7402fb2a517ab15d1b8b66db5465ec2c6c"
+content-hash = "03ae5a1af2be1ece314c3d2a4aa321e05bac292daad9d336f70b2534c2ae0f5d"
