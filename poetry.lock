@@ -229,5 +229,5 @@ cryptg = ["cryptg"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.8"
-content-hash = "03ae5a1af2be1ece314c3d2a4aa321e05bac292daad9d336f70b2534c2ae0f5d"
+python-versions = "^3.9"
+content-hash = "9d92b0d1b0a89f740740b997a488b70af111a77752a6ce53c271c08b4dc6bdc6"

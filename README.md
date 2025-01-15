@@ -23,7 +23,7 @@ Telegram bots are limited to 20Mb file size downloads. So I wrote this agent or 
 
 # Installation
 
-You need Python3.8 or above
+You need Python 3.9 or above
 
 Install dependencies by running this command:
 
