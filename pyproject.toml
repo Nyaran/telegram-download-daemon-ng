@@ -12,11 +12,11 @@ classifiers = [
     "Natural Language :: Spanish",
     "Natural Language :: English",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 packages = [
     { include = "telegram_download_daemon_ng", from = "src" }
@@ -28,7 +28,7 @@ keywords = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 cffi = "1.17.1"
 cryptg = "0.5.0.post0"
 pyaes = "1.6.1"
