@@ -1,10 +1,14 @@
-[tool.poetry]
+[project]
 name = "telegram-download-daemon-ng"
 version = "1.0.0-beta.7"
 description = "A daemon to automate telegram download of big files."
-authors = ["Luis Zurro <luiszurrodecos@gmail.com>"]
+authors = [
+    {name = "Luis Zurro", email = "luiszurrodecos@gmail.com"}
+]
 readme = "README.md"
 license = "GPLv3"
+requires-python = ">=3.9"
+
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: System Administrators",
