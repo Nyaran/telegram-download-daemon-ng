@@ -39,7 +39,7 @@ pyaes = "1.6.1"
 pyasn1 = "0.6.1"
 pycparser = "2.22"
 rsa = "4.9.1"
-telethon = "1.40.0"
+telethon = "1.41.0"
 humanize = "4.13.0"
 
 [build-system]
