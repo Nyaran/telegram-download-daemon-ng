@@ -1,6 +1,8 @@
-name: Docker Publish
+name: Publish
 
 on:
+  release:
+    types: [created]
   push:
     branches:
       - "**"
@@ -11,23 +13,69 @@ on:
       - "main"
 
 jobs:
-  docker:
+  build:
+    name: Build
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.9'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+      - name: Build binary wheel and source tarball
+        run: uv build
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*.whl
+
+  publish-pipy:
+    name: Upload release to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/telegram-download-daemon-ng
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Download wheel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+
+  publish-docker:
+    name: Publish Docker Image
+    needs: build
     runs-on: ubuntu-latest
     if: github.triggering_actor != 'dependabot[bot]'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+      - name: Download wheel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
-          # list of Docker images to use as base name for tags
           images: |
             nyaran/telegram-download-daemon-ng
             ghcr.io/Nyaran/telegram-download-daemon-ng
-          flavor:
-            latest=auto
-          # generate Docker tags based on the following events/attributes
+          flavor: latest=auto
           tags: |
             type=schedule
             type=ref,event=branch
@@ -36,20 +84,16 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Login to Docker Hub
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Login to GHCR
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -57,7 +101,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -65,7 +108,6 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v4
         with:

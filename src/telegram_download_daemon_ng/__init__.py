@@ -5,9 +5,11 @@ import os
 import re
 import subprocess
 import traceback
+
+from importlib.metadata import version
 from mimetypes import guess_extension
 
-from telethon import TelegramClient, events, __version__ as telethon_version
+from telethon import TelegramClient, events
 from telethon.tl.types import PeerChannel, DocumentAttributeFilename, DocumentAttributeVideo
 
 from .download_media import DownloadMedia
@@ -36,9 +38,9 @@ class TelegramDownloadDaemon:
         self.proxy = None
 
     @staticmethod
-    async def send_hello_message(version, client_ref, peer_channel):
+    async def send_hello_message(client_ref, peer_channel):
         entity = await client_ref.get_entity(peer_channel)
-        message = "Telegram Download Daemon NG {} using Telethon {}".format(version, telethon_version)
+        message = f"Telegram Download Daemon NG {version("telegram-download-daemon-ng")} using Telethon {version("telethon")}"
         print(message)
         await client_ref.send_message(entity, message)
         await client_ref.send_message(entity, "Hi! Ready for your files!")
@@ -67,7 +69,7 @@ class TelegramDownloadDaemon:
 
 
 
-    def start(self, version):
+    def start(self):
         with TelegramClient(get_session(), self.api_id, self.api_hash, proxy=self.proxy).start(
                 bot_token=self.bot) as client:
             save_session(client.session)
@@ -198,7 +200,7 @@ class TelegramDownloadDaemon:
                 for i in range(self.worker_count):
                     task = loop.create_task(worker())
                     tasks.append(task)
-                await self.send_hello_message(version, client, peer_channel)
+                await self.send_hello_message(client, peer_channel)
                 await client.run_until_disconnected()
                 for task in tasks:
                     task.cancel()
