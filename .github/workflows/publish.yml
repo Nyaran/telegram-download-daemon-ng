@@ -39,6 +39,7 @@ jobs:
     name: Upload release to PyPI
     needs: build
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
     environment:
       name: pypi
       url: https://pypi.org/p/telegram-download-daemon-ng
