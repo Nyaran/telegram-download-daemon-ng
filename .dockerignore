@@ -1,6 +1,7 @@
 # Project
 data
 dist
+!dist/*.whl
 
 ## Other stuff
 Dockerfile
@@ -112,7 +113,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+#dist/
 downloads/
 eggs/
 .eggs/

@@ -6,11 +6,9 @@ ENV TELEGRAM_DAEMON_DEST="/downloads"
 ENV TELEGRAM_DAEMON_SESSION_PATH="/session"
 ENV TELEGRAM_DAEMON_TEMP="/temp"
 
-WORKDIR /usr/src/telegram-download-daemon-ng
+COPY dist/*.whl /tmp/dist/
 
-COPY . /usr/src/telegram-download-daemon-ng
+RUN python3 -m pip install /tmp/dist/*.whl \
+    && rm -rf /tmp/dist
 
-RUN python3 -m pip install "poetry~=${POETRY_VERSION}"
-RUN python3 -m poetry install --no-interaction
-
-CMD [ "poetry", "run", "python3", "-m", "telegram_download_daemon_ng" ]
+CMD [ "python3", "-m", "telegram_download_daemon_ng" ]
