@@ -11,11 +11,13 @@ updates:
     schedule:
       interval: "daily"
 
+  # Maintain dependencies for uv (Python)
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "daily"
 
+  # Maintain dependencies for docker
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
