@@ -6,16 +6,16 @@ on:
   workflow_dispatch:
     inputs:
       version_increment:
-        description: 'Version Increment Type'
-        type: choice
-        required: true
-        options: [ '', 'major', 'minor', 'patch' ]
-        default: 'patch'
-      preid:
-        description: 'The "prerelease prefix" (alpha, beta, rc. ...)'
+        description: 'Version Increment Type. Keep empty if you want to increase prerelease version only. Use "stable" to remove prerelease tag'
         type: choice
         required: false
-        options: [ 'alpha,', 'beta', 'rc' ]
+        options: [ '', 'major', 'minor', 'patch', 'stable' ]
+        default: 'patch'
+      preid:
+        description: 'The "prerelease prefix" (alpha, beta, rc. ...). Keep empty if you want to increase stable version only'
+        type: choice
+        required: false
+        options: [ '', 'alpha', 'beta', 'rc' ]
         default: ''
       draft:
         description: 'Release as Draft'
