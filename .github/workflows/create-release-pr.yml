@@ -23,6 +23,10 @@ on:
         required: false
         default: true
 
+env:
+  GIT_USER_NAME: 'Luis Zurro de Cos'
+  GIT_USER_EMAIL: '1042532+Nyaran@users.noreply.github.com'
+
 jobs:
   release:
     runs-on: ubuntu-latest
