@@ -6,17 +6,17 @@ on:
   workflow_dispatch:
     inputs:
       version_increment:
-        description: 'Version Increment Type. Keep empty if you want to increase prerelease version only. Use "stable" to remove prerelease tag'
+        description: 'Version Increment Type. Set to "<none>" if you want to increase prerelease version only. Use "stable" to remove prerelease tag'
         type: choice
         required: false
-        options: [ '', 'major', 'minor', 'patch', 'stable' ]
+        options: [ '<none>', 'major', 'minor', 'patch', 'stable' ]
         default: 'patch'
       preid:
-        description: 'The "prerelease prefix" (alpha, beta, rc. ...). Keep empty if you want to increase stable version only'
+        description: 'The "prerelease prefix" (alpha, beta, rc. ...). Set to "<none>" if you want to increase stable version only'
         type: choice
         required: false
-        options: [ '', 'alpha', 'beta', 'rc' ]
-        default: ''
+        options: [ '<none>', 'alpha', 'beta', 'rc' ]
+        default: '<none>'
       draft:
         description: 'Release as Draft'
         type: boolean
@@ -39,7 +39,7 @@ jobs:
 
       - name: Validate version fields
         run: |
-          if [ -z "${{ github.event.inputs.version_increment }}" ] && [ -z "${{ github.event.inputs.preid }}" ]; then
+          if [ "${{ github.event.inputs.version_increment }}" = "<none>" ] && [ "${{ github.event.inputs.preid }}" = "<none>" ]; then
             echo "❌ ERROR: You must set 'version_increment' or 'preid'"
             exit 1
           fi
@@ -50,8 +50,8 @@ jobs:
       - name: Bump version
         run: |
           echo "NEW_VERSION=$(uv version --short \
-            $([ -n "${{ github.event.inputs.version_increment }}" ] && echo --bump ${{ github.event.inputs.version_increment }}) \
-            $([ -n "${{ github.event.inputs.preid }}" ] && echo --bump ${{ github.event.inputs.preid }}) \
+            $([ "${{ github.event.inputs.version_increment }}" != "<none>" ] && echo --bump ${{ github.event.inputs.version_increment }}) \
+            $([ "${{ github.event.inputs.preid }}" != "<none>" ] && echo --bump ${{ github.event.inputs.preid }}) \
           )" >> $GITHUB_ENV
 
       - name: Import GPG key
