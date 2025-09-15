@@ -50,8 +50,8 @@ jobs:
       - name: Bump version
         run: |
           echo "NEW_VERSION=$(uv version --short \
-            $([ "${{ github.event.inputs.version_increment }}" != "<none>" ] && echo --bump ${{ github.event.inputs.version_increment }}) \
-            $([ "${{ github.event.inputs.preid }}" != "<none>" ] && echo --bump ${{ github.event.inputs.preid }}) \
+            $([ "${{ github.event.inputs.version_increment }}" != '<none>' ] && echo --bump ${{ github.event.inputs.version_increment }}) \
+            $([ "${{ github.event.inputs.preid }}" != '<none>' ] && echo --bump ${{ github.event.inputs.preid }}) \
           )" >> $GITHUB_ENV
 
       - name: Import GPG key
