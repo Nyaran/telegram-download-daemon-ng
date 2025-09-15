@@ -188,7 +188,7 @@ wheels = [
 
 [[package]]
 name = "telegram-download-daemon-ng"
-version = "1.0.0b8"
+version = "1.0.0b9"
 source = { editable = "." }
 dependencies = [
     { name = "cffi" },
