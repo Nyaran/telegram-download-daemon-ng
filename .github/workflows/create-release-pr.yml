@@ -44,6 +44,9 @@ jobs:
             exit 1
           fi
 
+      - name: Setup environment
+        uses: ./.github/workflows/actions/set-environment
+
       - name: Bump version
         run: |
           echo "NEW_VERSION=$(uv version --short \
