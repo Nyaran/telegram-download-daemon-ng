@@ -20,4 +20,4 @@ runs:
         - name: Install uv
           uses: astral-sh/setup-uv@v6
           with:
-              uv-version: ${{ inputs.uv-version }}
+              version: ${{ inputs.uv-version }}
