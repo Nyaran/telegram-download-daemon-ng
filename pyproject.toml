@@ -30,7 +30,7 @@ dependencies = [
     "cffi==2.0.0",
     "cryptg==0.5.2",
     "pyaes==1.6.1",
-    "pyasn1==0.6.1",
+    "pyasn1==0.6.2",
     "pycparser==2.23",
     "rsa==4.9.1",
     "telethon==1.41.2",
