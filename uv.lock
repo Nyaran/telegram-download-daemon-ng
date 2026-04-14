@@ -220,18 +220,18 @@ requires-dist = [
     { name = "pyasn1", specifier = "==0.6.3" },
     { name = "pycparser", specifier = "==2.23" },
     { name = "rsa", specifier = "==4.9.1" },
-    { name = "telethon", specifier = "==1.43.0" },
+    { name = "telethon", specifier = "==1.43.1" },
 ]
 
 [[package]]
 name = "telethon"
-version = "1.43.0"
+version = "1.43.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pyaes" },
     { name = "rsa" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/03/d0/6eff202618f31b39a07fc9ffe629d689a4bfa22a022830f2684f661df16f/telethon-1.43.0.tar.gz", hash = "sha256:2f26099b4f7a52467367eda9a09b6c3723e38e8ea14fd4637ad09c0455fe259a", size = 687271, upload-time = "2026-04-10T15:57:43.236Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e3/f6/2d87c0cef931ec04ffacf7bb565c9279542870d4f1fac7d5631386159b7d/telethon-1.43.1.tar.gz", hash = "sha256:d10e87ca557ba2a1a169c7008386cef2e92ffcbe9bf97983b187b1da5042e50d", size = 687140, upload-time = "2026-04-13T19:52:22.648Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/00/f4/91abcd0598472e77c4abcd8918483777eeb0af9cd38177695dcf762301fc/telethon-1.43.0-py3-none-any.whl", hash = "sha256:3513f7d67972874f038358159ecd2b131c0cb7497e55430559844134981ffcf8", size = 773675, upload-time = "2026-04-10T15:57:41.208Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/98/f6efcb5b1e11d671d6b7dfd0f15b8c2290d66338fc4da1c8f359a2ce8177/telethon-1.43.1-py3-none-any.whl", hash = "sha256:d00388163c312c513fee30077f6357fd0b5c3382ee8d0e558c06aef499568bff", size = 773592, upload-time = "2026-04-13T19:52:20.559Z" },
 ]
