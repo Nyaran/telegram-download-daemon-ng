@@ -33,7 +33,7 @@ dependencies = [
     "pyasn1==0.6.3",
     "pycparser==2.23",
     "rsa==4.9.1",
-    "telethon==1.43.1",
+    "telethon==1.43.2",
     "humanize==4.13.0",
 ]
 
