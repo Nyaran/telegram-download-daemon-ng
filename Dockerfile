@@ -1,4 +1,4 @@
-FROM python:3.14.7
+FROM python:3.15.0rc2
 
 ARG POETRY_VERSION=1.0
 
